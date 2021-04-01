@@ -1,5 +1,9 @@
 
-# Numerical method
+> 3.5 methods for simulating phosphoric acid titration curves.
+> 
+> The output of all methods is combined in the `R/comparison.R` script.
+
+# 1. Numerical method
 
 It solves the acid-base equations for a given Na concentration, in a phosphoric acid buffer.
  
@@ -15,9 +19,9 @@ Everything relevant in a plot :)
 
 > Titration curve (top left); values of objective functions (top right, BM: mass balance, BC: charge balance, An: acid-base equilibria); speciation diagram (bottom left) and a nice _Na VS species_ plot which I never saw in class (bottom right).
 
-# Analytical method
+# 2. Analytical method
 
-`R/phosphoric_titration_analytic.R` implements the analytical method explained by Poutnik at chem.se: https://chemistry.stackexchange.com/a/149285/107836
+`R/phosphoric_titration_analytic.R` implements the analytical method explained by Poutnik at: https://chemistry.stackexchange.com/a/149285/107836
 
 Very simple and elegant: solving for Na is _much_ simpler than solving for pH.
 
@@ -25,11 +29,19 @@ It took me 10 minutes to implement Poutnik's solution (while learning how to use
 
 > Moraleja: KISS :P
 
-# Experimental data
+## 2.5 Volume corrections
+
+Implementation of a way of adjusting for titrant volume addition, in the `R/phosphoric_titration_analytic.vol_correct.R` script. Complements Poutnik's answer.
+
+First, the script solves for `[Na+]` without corrections. Then uses it to update total volume and acid concentrarion. This calculation is repeated until convergence (max iterations = 100, tol = `1e-8`).
+
+- [ ] I still have to check if it really converges to where it's supposed to. Poutnik suggested other methods.
+
+# 3 Experimental data
 
 Code for comparison to experimental data (from Julia Martín _et al_, DOI 10.20431/2349-0403.0409002) is at `R/comparison.R`.
 
-![comparison plot](./output/comparison.png)
+![comparison plot](./output/comparison2.png)
 
 Well, its something!
 

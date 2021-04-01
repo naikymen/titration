@@ -10,10 +10,14 @@ library(ggplot2)
 #   mutate(Na=dubious_scaling_factor*(Volume.mL-min(Volume.mL))/max(Volume.mL)) %>% 
 #   select(Na, pH)
 
-NaOH.Conc <- 0.09948
-Acid.Vol <- 25
-
-exp.result.df <- read.csv("data/titrPho.csv") %>%
-  dplyr::rename(Na.Vol=Volume.mL)  %>% 
-  mutate(Na = Na.Vol*NaOH.Conc/(Na.Vol+Acid.Vol)) %>% 
-  select(Na, pH)
+exp.result <- function(){
+  NaOH.Conc <- 0.09948
+  Acid.Vol <- 25
+  
+  exp.result.df <- read.csv("data/titrPho.csv") %>%
+    dplyr::rename(Na.Vol=Volume.mL)  %>% 
+    mutate(Na = Na.Vol*NaOH.Conc/(Na.Vol+Acid.Vol)) %>% 
+    select(Na, pH)
+  
+  return(exp.result.df)
+}
