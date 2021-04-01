@@ -1,5 +1,7 @@
 
 # Numerical method
+
+It solves the acid-base equations for a given Na concentration, in a phosphoric acid buffer.
  
 `R/phosphoric_titration_numeric.R` implements the numerical method, and was run with R version 4.0.4, and `nleqslv` version 3.3.2.
 
@@ -17,11 +19,11 @@ Everything relevant in a plot :)
 
 `R/phosphoric_titration_analytic.R` implements the analytical method explained by Poutnik at chem.se: https://chemistry.stackexchange.com/a/149285/107836
 
-Very simple and elegant.
+Very simple and elegant: solving for Na is _much_ simpler than solving for pH.
 
 Took me 10 minutes to implement Poutnik's solution (while learning to use numerical solvers took me days).
 
-Moraleja: KISS :P
+> Moraleja: KISS :P
 
 # Experimental data
 
