@@ -7,6 +7,10 @@ Thanks to Bhas for helping with that at stackoverflow: https://stackoverflow.com
 
 The result is saved for convenience and reference in the `output/result.df.RDS` file.
 
+Everything relevant :)
+
+![numerical plot](./output/numerical.png)
+
 # Analytical method
 
 `R/phosphoric_titration_analytic.R` will tun the analytical method explained by Poutnik at chem.se: https://chemistry.stackexchange.com/a/149285/107836

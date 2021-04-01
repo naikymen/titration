@@ -244,6 +244,7 @@ p.speciation <-
 
 # PLOT SPECIATION VS Na ####
 result.df <- as.data.frame(result.m)
+# result.df <- readRDS("output/result.df.0.04389.RDS")
 result.df$termcd <- c("ok", "xtol", "stall", "maxit", "jacobad")[result.df$termcd]
 
 result.df.long <- result.df %>%
