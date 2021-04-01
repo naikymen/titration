@@ -21,7 +21,7 @@ Everything relevant in a plot :)
 
 Very simple and elegant: solving for Na is _much_ simpler than solving for pH.
 
-Took me 10 minutes to implement Poutnik's solution (while learning to use numerical solvers took me days).
+It took me 10 minutes to implement Poutnik's solution (while learning how to use numerical solvers took me days).
 
 > Moraleja: KISS :P
 
