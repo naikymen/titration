@@ -34,7 +34,9 @@ titration.curves <- bind_rows(
 ggplot(titration.curves, mapping=aes(x=Na, y=pH)) + 
   geom_path(aes(color=method), size=2, alpha=.5) +
   theme_minimal() + 
-  ggtitle("Titration curves for 0.04389 M Phosphoric acid") +
-  xlab("[Na+]")
+  ggtitle("Titration curves for 0.04389 M Phosphoric acid",
+          "Note: negative [Na+] values were removed") +
+  xlab("[Na+]") +
+  xlim(c(0,NA))
 
 # ggsave("output/comparison2.png")
