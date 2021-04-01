@@ -11,7 +11,7 @@ Everything relevant :)
 
 ![numerical plot](./output/numerical.png)
 
-> Titration curve (top left); values of objective functions (top right, BM: mass balance, BC: charge balance, An: acid-base equilibrium); speciation diagram (bottom left) and a nice _Na VS species_ plot which I never saw in class (bottom right).
+> Titration curve (top left); values of objective functions (top right, BM: mass balance, BC: charge balance, An: acid-base equilibria); speciation diagram (bottom left) and a nice _Na VS species_ plot which I never saw in class (bottom right).
 
 # Analytical method
 
