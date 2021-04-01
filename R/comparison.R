@@ -33,4 +33,4 @@ ggplot(titration.curves, mapping=aes(x=Na, y=pH)) +
   ggtitle("Titration curves for 0.04389 M Phosphoric acid") +
   xlab("[Na+]")
 
-ggsave("output/comparison.pdf")
+# ggsave("output/comparison.png")

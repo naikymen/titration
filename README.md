@@ -15,3 +15,7 @@ The result is saved for convenience and reference in the `output/result.df.RDS` 
 
 Code for comparison to experimental data (from Julia Martín _et al_, DOI 10.20431/2349-0403.0409002) is at `R/comparison.R`.
 
+![comparison plot](./output/comparison.png)
+
+Well, its something!
+
