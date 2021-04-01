@@ -41,7 +41,7 @@ First, the script solves for `[Na+]` without corrections. Then uses it to update
 
 Code for comparison to experimental data (from Julia Martín _et al_, DOI 10.20431/2349-0403.0409002) is at `R/comparison.R`.
 
-![comparison plot](./output/comparison2.png)
+![comparison plot3](./output/comparison3.png)
 
 Well, its something!
 
