@@ -1,13 +1,13 @@
 
 # Numerical method
  
-`R/phosphoric_titration_numeric.R` was run with R version 4.0.4, and `nleqslv` version 3.3.2.
+`R/phosphoric_titration_numeric.R` implements the numerical method, and was run with R version 4.0.4, and `nleqslv` version 3.3.2.
 
 Thanks to Bhas for helping with that at stackoverflow: https://stackoverflow.com/a/66883518/11524079
 
-The result is saved for convenience and reference in the `output/result.df.RDS` file.
+The result is saved for convenience and reference in the `output/result.df.RDS` file (and others, similarly named).
 
-Everything relevant :)
+Everything relevant in a plot :)
 
 ![numerical plot](./output/numerical.png)
 
@@ -15,7 +15,13 @@ Everything relevant :)
 
 # Analytical method
 
-`R/phosphoric_titration_analytic.R` will tun the analytical method explained by Poutnik at chem.se: https://chemistry.stackexchange.com/a/149285/107836
+`R/phosphoric_titration_analytic.R` implements the analytical method explained by Poutnik at chem.se: https://chemistry.stackexchange.com/a/149285/107836
+
+Very simple and elegant.
+
+Took me 10 minutes to implement Poutnik's solution (while learning to use numerical solvers took me days).
+
+Moraleja: KISS :P
 
 # Experimental data
 
