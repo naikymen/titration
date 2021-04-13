@@ -7,7 +7,7 @@ library(ggplot2)
 # source("R/phosphoric_titration_analytic.R")
 source("R/phosphoric_titration_analytic.vol_correct.R")
 pH.seq <- seq(from=1,to=12,length.out = 1000)
-Na.seq <- Na(H = 10^-pH.seq, P_ca=0.04389)
+Na.seq <- Na.aprox(H = 10^-pH.seq, P_ca=0.04389)
 Na.seq.adj <- Na.adj(H=10^-pH.seq, P.ca=0.04389)
 
 ann.result.df <- data.frame(pH=pH.seq, Na=Na.seq$Na)

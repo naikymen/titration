@@ -18,14 +18,15 @@ A <- function(H, P_ca) P_ca * a4(H) / cd(H)
 
 OH <- function(H) Kw/H
 
-Na <- function(H=10^-pH.seq, P_ca=1)list(
-  H = H,
-  Na = H2A(H, P_ca) + 2*HA(H, P_ca) + 3*A(H, P_ca) + OH(H) - H,
-  H3A = H3A(H, P_ca),
-  H2A = H2A(H, P_ca),
-  HA = HA(H, P_ca),
-  A = A(H, P_ca)
-)
+Na.aprox <- function(H=10^-pH.seq, P_ca=1)
+  list(
+    H = H,
+    Na = H2A(H, P_ca) + 2*HA(H, P_ca) + 3*A(H, P_ca) + OH(H) - H,
+    H3A = H3A(H, P_ca),
+    H2A = H2A(H, P_ca),
+    HA = HA(H, P_ca),
+    A = A(H, P_ca)
+  )
 
 Na.adj.one <- function(H=10^-3, P.ca=1, P.vol=1, Na.ca=1, n.its=1:100){
   result <- matrix(ncol = 4, nrow = length(n.its))
@@ -35,7 +36,7 @@ Na.adj.one <- function(H=10^-3, P.ca=1, P.vol=1, Na.ca=1, n.its=1:100){
   
   for(i in seq_along(n.its)){
     
-    Na = H2A(H, P.ca) + 2*HA(H, P.ca) + 3*A(H, P.ca) + OH(H) - H
+    Na <- Na.aprox(H = H, P_ca = P.ca)[["Na"]]
     Vol <- P.vol + Na/Na.ca
     P.ca <- P.mass/Vol
     
@@ -54,7 +55,7 @@ Na.adj.one <- function(H=10^-3, P.ca=1, P.vol=1, Na.ca=1, n.its=1:100){
   # plot(d$Vol)
   # plot(d$P.ca)
   
-  res.adj <- Na(H = H, P_ca=P.mass/Vol)
+  res.adj <- Na.aprox(H = H, P_ca=P.mass/Vol)
   
   return(res.adj)
 }
@@ -64,21 +65,36 @@ Na.adj <- function(H, ...){
   colnames(res.matrix) <- c("H", "Na", "H3A", "H2A", "HA", "A")
   
   for(i in seq_along(pH.seq)){
+    i = seq_along(pH.seq)[1]
     res.matrix[i,] <- unlist(Na.adj.one(H=H[i], ...))
   }
   
   return(as.data.frame(res.matrix))
 }
 
-# Uncomment to compute
-# pH.seq <- seq(from=1, to=14, length.out = 1000)
-# Na.seq <- Na(H=10^-pH.seq, P_ca=1)
-# Na.seq.adj <- Na.adj(H=10^-pH.seq, P.ca=1)
-# 
-# plot(Na.seq.adj$Na, pH.seq, type="l", xlim = c(0,4), col=2, 
-#      xlab = "Na", ylab = "pH", main = "Titration curves")
-# lines(Na.seq$Na, pH.seq, col=3)
-# legend("right", legend = c("Adjusted", "Original"),
-#        box.lty = 0, bg="transparent",
-#        lty = rep(1,2),
-#        col = c(2,3))
+# Especiacion
+pH.seq <- seq(from=0, to=14, length.out = 1000)
+Na.seq <- Na.aprox(H=10^-pH.seq, P_ca=1)
+
+plot(x=-log10(Na.seq$H), y = Na.seq$H3A/1, 
+     main = "Diagrama de especiación del ácido fosfórico",
+     xlab = "pH", ylab = "alpha",
+     xlim = c(0,14), ylim=c(0,1), type = "l", col=1)
+lines(x=-log10(Na.seq$H), y = Na.seq$H2A/1, col=2)
+lines(x=-log10(Na.seq$H), y = Na.seq$HA/1, col=3)
+lines(x=-log10(Na.seq$H), y = Na.seq$A/1, col=4)
+legend(x = "right", box.lty = 0, bg="transparent",
+       legend = c("H3A","H2A","HA","A"), col = 1:4, lty = rep(1,4))
+
+# Titulacion
+pH.seq <- seq(from=1, to=14, length.out = 1000)
+Na.seq <- Na.aprox(H=10^-pH.seq, P_ca=1)
+Na.seq.adj <- Na.adj(H=10^-pH.seq, P.ca=1)
+
+plot(Na.seq.adj$Na, pH.seq, type="l", xlim = c(0,4), col=2,
+     xlab = "Na", ylab = "pH", main = "Titration curves")
+lines(Na.seq$Na, pH.seq, col=3)
+legend("right", legend = c("Adjusted", "Original"),
+       box.lty = 0, bg="transparent",
+       lty = rep(1,2),
+       col = c(2,3))
