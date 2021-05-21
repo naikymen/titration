@@ -104,6 +104,49 @@ Na.adj.analitico <- function(H, P.mass, P.vol, Na.ca){
 Na.adj.analitico(H, P.mass, P.vol, Na.ca)
 
 # Uno numérico: es divertido!
+result <- Na.adj.one(H=10^-3, P.ca=P.ca, P.vol=P.vol, Na.ca=Na.ca, n.its=100)
+
+Na.adj.one <- function(H=10^-3, P.ca=1, P.vol=1, Na.ca=1, n.its=100){
+  result <- matrix(ncol = 4, nrow = n.its)
+  colnames(result) <- c("H", "Na", "Vol", "P.ca")
+  
+  P.mass <- P.ca*P.vol
+  
+  Na <- Na.aprox(H = H, P.ca = P.ca)[["Na"]]
+  Na.mass <- Na * P.vol
+  Vol <- P.vol + Na.mass/Na.ca
+  P.ca.new <- P.mass/Vol
+  
+  result[1,] <- c(H, Na, Vol, P.ca.new)
+  
+  for(i in 2:n.its){
+    
+    Na <- Na.aprox(H = H, P.ca = P.ca.new)[["Na"]]
+    Na.mass <- Na * Vol
+    Vol <- P.vol + Na.mass/Na.ca
+    P.ca.new <- P.mass/Vol
+    
+    result[i,] <- c(H, Na, Vol, P.ca.new)
+    
+    if(isTRUE(all.equal(result[i-1,], result[i,]))){
+      break
+      # print("got it!")
+      # print(i)
+    } else if(i==n.its){
+      stop(paste("Calculation did not converge at pH: ", -log10(H)))
+    }
+  }
+  
+  res.adj <- Na.aprox(H = H, P.ca=P.ca)
+  
+  return(c(
+    unlist(res.adj),
+    Vol=Vol,
+    P.ca=P.ca
+  ))
+}
+
+# Uno numérico: es divertido!
 Na.adj.numeric <- function(H, P.ca, P.vol, Na.ca, n.its=100){
   H <- unname(H)
   P.ca <- unname(P.ca)
@@ -207,7 +250,8 @@ Na.adj <- function(pH.seq, P.ca, P.vol, Na.ca){
   
   for(i in seq_along(pH.seq)){
     h <- 10^(-pH.seq[i])
-    res.matrix[i,] <- unlist(Na.adj.numeric(H=h, P.ca, P.vol, Na.ca))
+    # res.matrix[i,] <- unlist(Na.adj.numeric(H=h, P.ca, P.vol, Na.ca))
+    res.matrix[i,] <- unlist(Na.adj.one(H=h, P.ca, P.vol, Na.ca))
   }
   
   return(as.data.frame(res.matrix))
@@ -261,7 +305,7 @@ Na.seq.adj  <- Na.adj(pH.seq=pH.seq, P.ca = P.ca, P.vol = P.vol, Na.ca = Na.ca)
 Na.seq.adj2 <- Na.adj2(pH.seq=pH.seq, P.mass = P.mass, P.vol = P.vol, Na.ca = Na.ca)
 
 plot(x = Na.seq.adj2$Na, y = pH.seq, type="l", col=2, xlab = "Na", ylab = "pH", main = "Titration curves")
-lines(x = Na.seq.adj$Na, y = pH.seq, col=3)
+lines(x = Na.seq.adj$Na*2, y = pH.seq, col=3)
 lines(x = Na.seq$Na,     y = pH.seq, col=4)
 legend("right", legend = c("Adjusted (analytic)", "Adjusted (numeric)", "Original"),
        box.lty = 0, bg="transparent",
