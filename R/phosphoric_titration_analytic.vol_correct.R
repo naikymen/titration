@@ -96,25 +96,23 @@ Na.ca=1
 # 
 # Listo!
 
+# Wrapper analítico:
 Na.adj.analitico <- function(H, P.mass, P.vol, Na.ca){
   Na.vol <- (P.mass * (.H2A(H) + 2*.HA(H) + 3*.A(H)) + P.vol * (OH(H) - H)) / (Na.ca - (OH(H) - H))
   return(Na.vol)
 }
 
-Na.adj.analitico(H, P.mass, P.vol, Na.ca)
-
 # Uno numérico: es divertido!
-result <- Na.adj.one(H=10^-3, P.ca=P.ca, P.vol=P.vol, Na.ca=Na.ca, n.its=100)
-
 Na.adj.one <- function(H=10^-3, P.ca=1, P.vol=1, Na.ca=1, n.its=100){
   result <- matrix(ncol = 4, nrow = n.its)
-  colnames(result) <- c("H", "Na", "Vol", "P.ca")
+  colnames(result) <- c("H", "Na", "Na.vol", "P.ca")
   
   P.mass <- P.ca*P.vol
   
   Na <- Na.aprox(H = H, P.ca = P.ca)[["Na"]]
   Na.mass <- Na * P.vol
-  Vol <- P.vol + Na.mass/Na.ca
+  Na.vol <- Na.mass/Na.ca
+  Vol <- P.vol + Na.vol
   P.ca.new <- P.mass/Vol
   
   result[1,] <- c(H, Na, Vol, P.ca.new)
@@ -123,10 +121,11 @@ Na.adj.one <- function(H=10^-3, P.ca=1, P.vol=1, Na.ca=1, n.its=100){
     
     Na <- Na.aprox(H = H, P.ca = P.ca.new)[["Na"]]
     Na.mass <- Na * Vol
-    Vol <- P.vol + Na.mass/Na.ca
+    Na.vol <- Na.mass/Na.ca
+    Vol <- P.vol + Na.vol
     P.ca.new <- P.mass/Vol
     
-    result[i,] <- c(H, Na, Vol, P.ca.new)
+    result[i,] <- c(H, Na, Na.vol, P.ca.new)
     
     if(isTRUE(all.equal(result[i-1,], result[i,]))){
       break
@@ -137,12 +136,9 @@ Na.adj.one <- function(H=10^-3, P.ca=1, P.vol=1, Na.ca=1, n.its=100){
     }
   }
   
-  res.adj <- Na.aprox(H = H, P.ca=P.ca)
-  
   return(c(
-    unlist(res.adj),
-    Vol=Vol,
-    P.ca=P.ca
+    unlist(Na.aprox(H=H, P.ca=P.ca.new)),
+    Na.vol=Na.vol
   ))
 }
 
@@ -242,9 +238,9 @@ Na.adj.numeric <- function(H, P.ca, P.vol, Na.ca, n.its=100){
 # 
 # unlist(Na.aprox(H = Na.adj.result["H"], P_ca = Na.adj.result["P.ca"]))
 
+# Numeric (old function)
 Na.adj <- function(pH.seq, P.ca, P.vol, Na.ca){
-  res.columns <- c("H", "Na", "H3A", "H2A", "HA", "A",
-                   "Vol", "P.ca")
+  res.columns <- c("H", "Na", "H3A", "H2A", "HA", "A", "Na.vol")
   res.matrix <- matrix(nrow = length(pH.seq), ncol = length(res.columns))
   colnames(res.matrix) <- res.columns
   
@@ -257,56 +253,61 @@ Na.adj <- function(pH.seq, P.ca, P.vol, Na.ca){
   return(as.data.frame(res.matrix))
 }
 
+# Analytic
 Na.adj2 <- function(pH.seq, P.mass, P.vol, Na.ca){
-  res.columns <- c("H", "Na", "H3A", "H2A", "HA", "A",
-                   "Vol", "P.ca")
+  res.columns <- c("H", "Na", "H3A", "H2A", "HA", "A", "Na.vol")
   res.matrix <- matrix(nrow = length(pH.seq), ncol = length(res.columns))
   colnames(res.matrix) <- res.columns
   
   for(i in seq_along(pH.seq)){
     h <- 10^(-pH.seq[i])
-    res.matrix[i,] <- unlist(Na.adj.analitico(H=h, P.mass, P.vol, Na.ca))
+    Na.vol <- Na.adj.analitico(H=h, P.mass, P.vol, Na.ca)
+    res.matrix[i,"Na.vol"] <- Na.vol
+    
+    P.ca.new <- P.mass / (P.vol + Na.vol)
+    especies <- unlist(Na.aprox(H=h, P.ca = P.ca.new))
+    res.matrix[i,-7] <- especies
   }
   
   return(as.data.frame(res.matrix))
 }
 
-# Ejemplo
-# Na.adj(pH.seq=7)
-
-# Especiacion
+# Diagrama de Especiacion (sin ajustar volumen)
 P.vol=1
 P.ca=2
 P.mass <- P.ca*P.vol # moles
 H=10^-2
 Na.ca=1
 pH.seq <- seq(from=0, to=14, length.out = 1000)
-Na.seq <- Na.aprox(H=10^-pH.seq, P.ca=P.ca)
+Species.seq <- Na.aprox(H=10^-pH.seq, P.ca=P.ca)
 
-plot(x=-log10(Na.seq$H), y = Na.seq$H3A/P.ca, 
+plot(x=-log10(Species.seq$H), y = Species.seq$H3A/P.ca, 
      main = "Diagrama de especiación del ácido fosfórico",
      xlab = "pH", ylab = "alpha",
      xlim = c(0,14), ylim=c(0,1), type = "l", col=1)
-lines(x=-log10(Na.seq$H), y = Na.seq$H2A/P.ca, col=2)
-lines(x=-log10(Na.seq$H), y = Na.seq$HA/P.ca, col=3)
-lines(x=-log10(Na.seq$H), y = Na.seq$A/P.ca, col=4)
+lines(x=-log10(Species.seq$H), y = Species.seq$H2A/P.ca, col=2)
+lines(x=-log10(Species.seq$H), y = Species.seq$HA/P.ca, col=3)
+lines(x=-log10(Species.seq$H), y = Species.seq$A/P.ca, col=4)
 legend(x = "right", box.lty = 0, bg="transparent",
        legend = c("H3A","H2A","HA","A"), col = 1:4, lty = rep(1,4))
 
-# Titulacion
+# Titulacion (sin ajustar, ajuste analítico y ajuste numérico)
 P.vol=1
 P.ca=2
 P.mass <- P.ca*P.vol # moles
 H=10^-2
 Na.ca=1
 pH.seq <- seq(from=1, to=13.25, length.out = 1000)
-Na.seq <- Na.aprox(H=10^-pH.seq, P.ca=P.ca)
-Na.seq.adj  <- Na.adj(pH.seq=pH.seq, P.ca = P.ca, P.vol = P.vol, Na.ca = Na.ca)
-Na.seq.adj2 <- Na.adj2(pH.seq=pH.seq, P.mass = P.mass, P.vol = P.vol, Na.ca = Na.ca)
 
-plot(x = Na.seq.adj2$Na, y = pH.seq, type="l", col=2, xlab = "Na", ylab = "pH", main = "Titration curves")
-lines(x = Na.seq.adj$Na*2, y = pH.seq, col=3)
-lines(x = Na.seq$Na,     y = pH.seq, col=4)
+# Todo en volumen de [NaOH]
+Na.seq      <- (Na.aprox(H=10^-pH.seq, P.ca=P.ca)$Na * P.vol) / Na.ca
+Na.seq.adj  <- Na.adj(pH.seq=pH.seq, P.ca = P.ca, P.vol = P.vol, Na.ca = Na.ca)$Na.vol
+Na.seq.adj2 <- Na.adj2(pH.seq=pH.seq, P.mass = P.mass, P.vol = P.vol, Na.ca = Na.ca)$Na.vol
+
+# Plot
+plot(x = Na.seq.adj2, y = pH.seq, type="l", col=2, xlab = "Na.vol", ylab = "pH", main = "Titration curves")
+lines(x = Na.seq.adj, y = pH.seq, col=3)
+lines(x = Na.seq,     y = pH.seq, col=4)
 legend("right", legend = c("Adjusted (analytic)", "Adjusted (numeric)", "Original"),
        box.lty = 0, bg="transparent",
        lty = rep(1,3),
