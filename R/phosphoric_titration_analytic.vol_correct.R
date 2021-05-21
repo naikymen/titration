@@ -218,8 +218,7 @@ Na.adj.numeric <- function(H, P.ca, P.vol, Na.ca, n.its=100){
       Na.aprox.new <- Na.aprox(H = H, P.ca = P.ca.new)
       return(c(
         unlist(Na.aprox.new), 
-        Vol=Na.vol.new, 
-        P.ca=P.ca.new
+        Vol=Na.vol.new
         ))
     }
     
@@ -246,8 +245,8 @@ Na.adj <- function(pH.seq, P.ca, P.vol, Na.ca){
   
   for(i in seq_along(pH.seq)){
     h <- 10^(-pH.seq[i])
-    # res.matrix[i,] <- unlist(Na.adj.numeric(H=h, P.ca, P.vol, Na.ca))
-    res.matrix[i,] <- unlist(Na.adj.one(H=h, P.ca, P.vol, Na.ca))
+    res.matrix[i,] <- unlist(Na.adj.numeric(H=h, P.ca, P.vol, Na.ca))
+    # res.matrix[i,] <- unlist(Na.adj.one(H=h, P.ca, P.vol, Na.ca))
   }
   
   return(as.data.frame(res.matrix))
