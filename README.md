@@ -33,17 +33,19 @@ It took me 10 minutes to implement Poutnik's solution (while learning how to use
 
 Implementation of a way of adjusting for titrant volume addition, in the `R/phosphoric_titration_analytic.vol_correct.R` script. Complements Poutnik's answer.
 
-First, the script solves for `[Na+]` without corrections. Then uses it to update total volume and acid concentrarion. This calculation is repeated until convergence (max iterations = 100, tol = `1e-8`).
+First, the script solves for `[Na+]` without corrections. Then uses it to update total volume and acid concentrarion. This calculation is repeated until convergence (see `Na.adj.one()`; tol = `1e-8`).
 
-- [ ] I still have to check if it really converges to where it's supposed to. Poutnik suggested other methods.
+- [x] I still have to check if it really converges to where it's supposed to. Poutnik suggested other methods.
+
+I also solved the corrected version analitically, and it matches perfectly (see `Na.adj.analitico()` and the plots below).
 
 # 3 Experimental data
 
 Code for comparison to experimental data (from Julia Martín _et al_, DOI 10.20431/2349-0403.0409002) is at `R/comparison.R`.
 
-![comparison plot3](./output/comparison4.w_experimental.png)
+![comparison4.w_experimental](./output/comparison4.w_experimental.png)
 
-> Note: the "iterative" volume correction to the volume-uncorrected analytical solution did not converge in the conditions of the real experiment. But works in test conditions.
+> Note: the "iterative" volume correction to the volume-uncorrected analytical solution has some trouble converging in the conditions of the real experiment. But works in test conditions or with more iterations.
 > 
 > The volume-corrected analytical solution also struggles in these conditions, and the top pH had to be set below 12.
 

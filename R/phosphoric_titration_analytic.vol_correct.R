@@ -144,7 +144,13 @@ Na.adj.one <- function(H=10^-3, P.ca=1, P.vol=1, Na.ca=1, n.its=100){
 }
 
 # Uno numérico: es divertido!
-Na.adj.numeric <- function(H, P.ca, P.vol, Na.ca, n.its=100){
+# P.vol=1
+# P.ca=2
+# P.mass <- P.ca*P.vol # moles
+# Na.ca=1
+# H=10^-1
+# plot.convergence = T
+Na.adj.numeric <- function(H, P.ca, P.vol, Na.ca, n.its=100, plot.convergence=F){
   H <- unname(H)
   P.ca <- unname(P.ca)
   P.vol <- unname(P.vol)
@@ -163,21 +169,27 @@ Na.adj.numeric <- function(H, P.ca, P.vol, Na.ca, n.its=100){
   
   # Imaginemos entonces que agregamos el NaOH(s) para llegar a pH=7,
   # ¡Pero que nos olvidamos de agregar el agua! ¿Cuánta agua olvidamos agregar?
-  # Si teníamos Na.ca=2M, podemos calcular el la masa de NaOH(s) 
-  # y el volumen de NaOH(l) correspondiente:
+  # Si teníamos Na.ca=1M, podemos calcular la masa de NaOH(s) 
   Na.mass <- Na * P.vol
+  # y el volumen de NaOH(l) correspondiente:
   Na.vol <- Na.mass/Na.ca
   
   # Esta es nuestra apuesta respecto al volumen de titulante que debíamos agregar.
+  
+  # Guardar data de las iteraciones
+  iter.data <- matrix(ncol=2, nrow=n.its+1, dimnames = list(NULL, c("P.ca", "Na.vol")))
+  iter.data[1,] <- c(P.ca, Na.vol)
   
   for(i in 1:n.its){
     # Y luego el volumen final de la solución:
     P.vol.new <- P.vol + Na.vol # * 2
     
-    # Hipótesis: es tarde y queremos irnos a casa, por lo que suponemos que agregar el agua no cambió nada.
+    # Imaginemos que es tarde y queremos irnos a casa, y tiramos una hipótesis:
+    # "Agregar el agua no cambió nada! y me puedo ir a casa en paz".
+    
     # Pero JTP nos dice:
     # "Cambiar el volumen diluye al ácido, así que chequealo antes de irte.".
-    # "Fijate si da igual agregar primero el agua y después el NaOH(s)".
+    # "Podés fijarte si da igual agregar primero el agua y después el NaOH(s)".
     
     # Entonces primero diluimos el ácido:
     P.ca.new <- P.mass / P.vol.new
@@ -190,31 +202,64 @@ Na.adj.numeric <- function(H, P.ca, P.vol, Na.ca, n.its=100){
     Na.vol.new <- Na.mass.new/Na.ca
     
     # Si agregar el volumen primero no cambiaba nada,
-    # entonces nuestra apuesta inicial para la cantidad de titulante no
-    # debería ser igual a la que calculamos haciendo el TP al revés.
+    # entonces nuestra apuesta inicial para la cantidad de titulante
+    # debería ser buena! e igual a la que calculamos haciendo el TP al revés.
+    # ¿Lo es?
+    
+    # Guardar data de las iteraciones
+    iter.data[i+1,] <- c(P.ca.new, Na.vol.new)
     
     if(!isTRUE(all.equal(Na.vol, Na.vol.new))){
       # Si no son iguales... ¿qué significa?
-      # En ese caso la dilución del ácido cambia la cantidad de titulante
+      # En ese caso la dilución del ácido cambia el volumen de titulante
       # necesario para llevar la solución a cierto pH (o sea, JTP tenía razón).
       
-      # El objetivo es encontrar una dilución del ácido, tal que a cierto pH
-      # el volumen de NaOH necesario coincida con el volumen que diluyó al ácido.
+      # El objetivo es encontrar una dilución del ácido, tal que, a cierto pH,
+      # el volumen de NaOH 1M necesario coincida con el volumen que diluyó al ácido.
+      
       # Si nuestra aproximación inicial no fue suficiente:
       # ¿qué valor de Na.vol probamos a continuación?
       
-      # Primero notamos que "Na.vol.new" no puede ser más grande que "Na.vol"
+      # Primero notamos que "Na.vol.new" no puede ser más grande que "Na.vol".
       # Esto es porque si el agua diluye al ácido, en ninguna circunstancia
       # voy a tener que agregar más NaOH para llegar al mismo pH.
-      # Entonces, si diluimos de 
+      # "Es como que la dilución por sí misma puede titular" (?)
       
-      # Digamos ahora que en la dilución agregamos agua de más...
-      # 
-      # para llevar el ácido a pH.
+      # Ahora sabemos que "Na.vol.new" tiene cota superior.
+      # ¿Pero que pasa si adivinamos un valor muy chico para probar?
+      # En ese caso el volumen agregado sería pequeño y el volumen total
+      # se acercaría al de la solución original, que es el lugar de donde partimos.
+      # O sea, si probamos con un valor muy bajo, el ácido está concentrado,
+      # y la corrección de volumen va a dar un "Na.vol.new" alto otra vez.
+      
+      # A partir de esto podemos decir que hay una tendencia hacia el centro
+      # la pregunta que queda es ¿converge realmente?
       
       # print(Na.vol.new)
       Na.vol <- Na.vol.new
     } else {
+
+      # Graficar el proceso
+      if(plot.convergence){
+        
+        iter.data.ok <- iter.data[!is.na(iter.data[,1]),]
+        
+        plot(x=iter.data[,1], y = iter.data[,2], type = "l",
+             xlim = range(iter.data[,1], na.rm = T),
+             ylim=range(iter.data[,2], na.rm = T),
+             xlab="P.ca.new", ylab="Na.vol.new")
+        points(x=iter.data[1,1], y = iter.data[1,2], col = "red")
+        points(x=iter.data[-1,1], y = iter.data[-1,2], col = "blue")
+        title(main = "Apuesta inicial (rojo) e iteraciones (azul)")
+        
+        # plot(iter.data.ok[,1], type = "l",
+        #      ylim=range(iter.data.ok, na.rm = T))
+        # lines(iter.data.ok[,2])
+        # points(iter.data[,1], col = "red")
+        # points(iter.data[,2], col = "blue")
+        # title(main = "Apuesta inicial (rojo) e iteraciones (azul)")
+      }
+      
       # Si son iguales, podemos irnos a casa :)
       Na.aprox.new <- Na.aprox(H = H, P.ca = P.ca.new)
       return(c(
