@@ -41,7 +41,11 @@ First, the script solves for `[Na+]` without corrections. Then uses it to update
 
 Code for comparison to experimental data (from Julia Martín _et al_, DOI 10.20431/2349-0403.0409002) is at `R/comparison.R`.
 
-![comparison plot3](./output/comparison3.png)
+![comparison plot3](./output/comparison4.w_experimental.png)
+
+> Note: the "iterative" volume correction to the volume-uncorrected analytical solution did not converge in the conditions of the real experiment. But works in test conditions.
+> 
+> The volume-corrected analytical solution also struggles in these conditions, and the top pH had to be set below 12.
 
 Well, its something!
 

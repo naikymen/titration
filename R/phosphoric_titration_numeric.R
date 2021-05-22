@@ -4,14 +4,13 @@ library(ggplot2)
 
 # Numerical solution for the triprotic buffer system
 # Using 1M phosphoric acid
-# Titrating with NaOH
+# pseudo-Titrating with NaOH (not volume corrected, i.e. assumes solid NaOH)
 
 Ka.1 <- 7.1 * 10^-3
 Ka.2 <- 6.3 * 10^-8
 Ka.3 <- 4.5 * 10^-13
 Kw <- 10^-14
 
-P_ca <- 1
 P_ca <- 0.04389
 ci.start <- c(H=0.1, H3A=0.9, H2A=0.1, HA=0.1, A=0.1)
 

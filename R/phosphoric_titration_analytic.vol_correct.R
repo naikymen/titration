@@ -40,11 +40,11 @@ Na.aprox <- function(H=10^-pH.seq, P.ca=1){
 # Na.aprox(H = 10^-7)
 
 # Constantes
-P.vol=1
-P.ca=2
-P.mass <- P.ca*P.vol # moles
-H=10^-2
-Na.ca=1
+# P.vol=1
+# P.ca=2
+# P.mass <- P.ca*P.vol # moles
+# H=10^-2
+# Na.ca=1
 
 # # Solución analítica con ajuste de volumen:
 # 
@@ -132,7 +132,8 @@ Na.adj.one <- function(H=10^-3, P.ca=1, P.vol=1, Na.ca=1, n.its=100){
       # print("got it!")
       # print(i)
     } else if(i==n.its){
-      stop(paste("Calculation did not converge at pH: ", -log10(H)))
+      warning(paste("Calculation did not converge at pH: ", -log10(H)))
+      return(rep(NA, 7))
     }
   }
   
@@ -238,15 +239,15 @@ Na.adj.numeric <- function(H, P.ca, P.vol, Na.ca, n.its=100){
 # unlist(Na.aprox(H = Na.adj.result["H"], P_ca = Na.adj.result["P.ca"]))
 
 # Numeric (old function)
-Na.adj <- function(pH.seq, P.ca, P.vol, Na.ca){
+Na.adj <- function(pH.seq, P.ca, P.vol, Na.ca, n.its){
   res.columns <- c("H", "Na", "H3A", "H2A", "HA", "A", "Na.vol")
   res.matrix <- matrix(nrow = length(pH.seq), ncol = length(res.columns))
   colnames(res.matrix) <- res.columns
   
   for(i in seq_along(pH.seq)){
     h <- 10^(-pH.seq[i])
-    res.matrix[i,] <- unlist(Na.adj.numeric(H=h, P.ca, P.vol, Na.ca))
-    # res.matrix[i,] <- unlist(Na.adj.one(H=h, P.ca, P.vol, Na.ca))
+    # res.matrix[i,] <- unlist(Na.adj.numeric(H=h, P.ca, P.vol, Na.ca, n.its = n.its))
+    res.matrix[i,] <- unlist(Na.adj.one(H=h, P.ca, P.vol, Na.ca))
   }
   
   return(as.data.frame(res.matrix))
@@ -271,44 +272,53 @@ Na.adj2 <- function(pH.seq, P.mass, P.vol, Na.ca){
   return(as.data.frame(res.matrix))
 }
 
-# Diagrama de Especiacion (sin ajustar volumen)
-P.vol=1
-P.ca=2
-P.mass <- P.ca*P.vol # moles
-H=10^-2
-Na.ca=1
-pH.seq <- seq(from=0, to=14, length.out = 1000)
-Species.seq <- Na.aprox(H=10^-pH.seq, P.ca=P.ca)
-
-plot(x=-log10(Species.seq$H), y = Species.seq$H3A/P.ca, 
-     main = "Diagrama de especiación del ácido fosfórico",
-     xlab = "pH", ylab = "alpha",
-     xlim = c(0,14), ylim=c(0,1), type = "l", col=1)
-lines(x=-log10(Species.seq$H), y = Species.seq$H2A/P.ca, col=2)
-lines(x=-log10(Species.seq$H), y = Species.seq$HA/P.ca, col=3)
-lines(x=-log10(Species.seq$H), y = Species.seq$A/P.ca, col=4)
-legend(x = "right", box.lty = 0, bg="transparent",
-       legend = c("H3A","H2A","HA","A"), col = 1:4, lty = rep(1,4))
-
-# Titulacion (sin ajustar, ajuste analítico y ajuste numérico)
-P.vol=1
-P.ca=2
-P.mass <- P.ca*P.vol # moles
-H=10^-2
-Na.ca=1
-pH.seq <- seq(from=1, to=13.25, length.out = 1000)
-
-# Todo en volumen de [NaOH]
-Na.seq      <- (Na.aprox(H=10^-pH.seq, P.ca=P.ca)$Na * P.vol) / Na.ca
-Na.seq.adj  <- Na.adj(pH.seq=pH.seq, P.ca = P.ca, P.vol = P.vol, Na.ca = Na.ca)$Na.vol
-Na.seq.adj2 <- Na.adj2(pH.seq=pH.seq, P.mass = P.mass, P.vol = P.vol, Na.ca = Na.ca)$Na.vol
-
-# Plot
-plot(x = Na.seq.adj2, y = pH.seq, type="l", col=2, xlab = "Na.vol", ylab = "pH", main = "Titration curves")
-lines(x = Na.seq.adj, y = pH.seq, col=3)
-lines(x = Na.seq,     y = pH.seq, col=4)
-legend("right", legend = c("Adjusted (analytic)", "Adjusted (numeric)", "Original"),
-       box.lty = 0, bg="transparent",
-       lty = rep(1,3),
-       col = 2:4)
+# Ejemplos:
+if(F){
+  # Diagrama de Especiacion (sin ajustar volumen)
+  P.vol=1
+  P.ca=2
+  P.mass <- P.ca*P.vol # moles
+  H=10^-2
+  Na.ca=1
+  pH.seq <- seq(from=0, to=14, length.out = 1000)
+  Species.seq <- Na.aprox(H=10^-pH.seq, P.ca=P.ca)
+  
+  plot(x=-log10(Species.seq$H), y = Species.seq$H3A/P.ca, 
+       main = "Diagrama de especiación del ácido fosfórico",
+       xlab = "pH", ylab = "alpha",
+       xlim = c(0,14), ylim=c(0,1), type = "l", col=1)
+  lines(x=-log10(Species.seq$H), y = Species.seq$H2A/P.ca, col=2)
+  lines(x=-log10(Species.seq$H), y = Species.seq$HA/P.ca, col=3)
+  lines(x=-log10(Species.seq$H), y = Species.seq$A/P.ca, col=4)
+  legend(x = "right", box.lty = 0, bg="transparent",
+         legend = c("H3A","H2A","HA","A"), col = 1:4, lty = rep(1,4))
+  
+  # Titulacion (sin ajustar, ajuste analítico y ajuste numérico)
+  P.vol=1
+  P.ca=2
+  P.mass <- P.ca*P.vol # moles
+  Na.ca=1
+  pH.seq <- seq(from=1, to=13.25, length.out = 1000)
+  
+  # Experiment conditions:
+  # P.vol=0.025    # 25 mL
+  # P.ca=0.04389   # 0.04389 M
+  # P.mass <- P.ca*P.vol # moles
+  # Na.ca=0.09948  # 0.09948
+  # pH.seq <- seq(from=1, to=12, length.out = 1000)
+  
+  # Todo en volumen de [NaOH]
+  Na.seq      <- (Na.aprox(H=10^-pH.seq, P.ca=P.ca)$Na * P.vol) / Na.ca
+  Na.seq.adj  <- Na.adj(pH.seq=pH.seq, P.ca = P.ca, P.vol = P.vol, Na.ca = Na.ca, n.its = 200)$Na.vol
+  Na.seq.adj2 <- Na.adj2(pH.seq=pH.seq, P.mass = P.mass, P.vol = P.vol, Na.ca = Na.ca)$Na.vol
+  
+  # Plot
+  plot(x = Na.seq, y = pH.seq, type="l", col=2, xlab = "Na.vol", ylab = "pH", main = "Titration curves")
+  lines(x = Na.seq.adj, y = pH.seq, col=3)
+  lines(x = Na.seq.adj2,     y = pH.seq, col=4)
+  legend("right", legend = c("Original", "Adjusted (numeric)", "Adjusted (analytic)"),
+         box.lty = 0, bg="transparent",
+         lty = rep(1,3),
+         col = 2:4)
+}
 
