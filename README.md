@@ -36,6 +36,7 @@ Implementation of a way of adjusting for titrant volume addition, in the `R/phos
 First, the script solves for `[Na+]` without corrections. Then uses it to update total volume and acid concentrarion. This calculation is repeated until convergence (see `Na.adj.one()`; tol = `1e-8`).
 
 - [x] I still have to check if it really converges to where it's supposed to. Poutnik suggested other methods.
+- [ ] I still have to find out _why_ it converges xD.
 
 I also solved the corrected version analitically, and it matches perfectly (see `Na.adj.analitico()` and the plots below).
 
