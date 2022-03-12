@@ -94,9 +94,9 @@ Na.aprox <- function(H=10^-pH.seq, P.ca=1){
 # #####
 # Na.vol * Na.ca - Na.vol * (OH(H) - H) = P.mass * (.H2A(H) + 2*.HA(H) + 3*.A(H)) + P.vol * (OH(H) - H)
 # 
-# Listo!
-
-# Wrapper analítico:
+# Luego despejamos Na.vol y listo!
+# 
+# Armamps una solucón analítica:
 Na.adj.analitico <- function(H, P.mass, P.vol, Na.ca){
   Na.vol <- (P.mass * (.H2A(H) + 2*.HA(H) + 3*.A(H)) + P.vol * (OH(H) - H)) / (Na.ca - (OH(H) - H))
   return(Na.vol)
