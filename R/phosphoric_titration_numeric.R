@@ -263,6 +263,7 @@ p.species_vs_Na <-
 
 # PLOT ALL ####
 # pdf("output/numerical.solution.pdf")
+# png("output/numerical.png")
 gridExtra::grid.arrange(p.titration,
                         p.equations,
                         p.speciation,
